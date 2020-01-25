@@ -1,6 +1,8 @@
 package pl.coderslab.dao;
 
-import pl.coderslab.models.User;
+
+
+import pl.coderslab.model.User;
 
 import java.sql.*;
 import java.util.Arrays;
@@ -20,7 +22,7 @@ public class ExerciseDao {
 
     // metoda wczytująca dane do tabeli
     public User create(User user) {
-        try (Connection conn = DbConnection.getConnection("workspace2")) {
+        try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement =
                     conn.prepareStatement(CREATE_USER_QUERY, Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, user.getUserName());
@@ -40,7 +42,7 @@ public class ExerciseDao {
 
 
     public User read(int userId) {
-        try (Connection conn = DbConnection.getConnection("workspace2")) {
+        try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement = conn.prepareStatement(READ_USER_QUERY);
             statement.setInt(1, userId);
             ResultSet resultSet = statement.executeQuery();
@@ -59,7 +61,7 @@ public class ExerciseDao {
     }
 
     public void update(User user) {
-        try (Connection conn = DbConnection.getConnection("workspace2")) {
+        try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement = conn.prepareStatement(UPDATE_USER_QUERY);
             statement.setString(1, user.getUserName());
             statement.setString(2, user.getEmail());
@@ -72,7 +74,7 @@ public class ExerciseDao {
     }
 
     public void delete(int userId) {
-        try (Connection conn = DbConnection.getConnection("workspace2")) {
+        try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement = conn.prepareStatement(DELETE_USER_QUERY);
             statement.setInt(1, userId);
             statement.executeUpdate();
@@ -90,7 +92,7 @@ public class ExerciseDao {
     }
 
     public User[] findAll() {
-        try (Connection conn = DbConnection.getConnection("workspace2")) {
+        try (Connection conn = DbUtil.getConnection()) {
             User[] users = new User[0];
             PreparedStatement statement = conn.prepareStatement(FIND_ALL_USERS_QUERY);
             ResultSet resultSet = statement.executeQuery();
