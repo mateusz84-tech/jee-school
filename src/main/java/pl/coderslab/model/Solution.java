@@ -1,21 +1,25 @@
+
 package pl.coderslab.model;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 public class Solution {
-    private int id;
-    private int exercise_id;
-    private int users_id;
-    private String desription;
-    private LocalDateTime created;
-    private LocalDateTime updated;
 
-    public Solution(int exercise_id, int users_id, String desription, LocalDateTime created, LocalDateTime updated){
-        this.exercise_id = exercise_id;
-        this.users_id = users_id;
-        this.desription = desription;
+    private int id;
+    private Timestamp created;
+    private Timestamp updated;
+    private String description;
+    private int exerciseId;
+    private int usersId;
+
+    public Solution(Timestamp created, String description, int exerciseId, int usersId) {
         this.created = created;
-        this.updated = updated;
+        this.description = description;
+        this.exerciseId = exerciseId;
+        this.usersId = usersId;
+    }
+
+    public Solution() {
     }
 
     public int getId() {
@@ -26,55 +30,55 @@ public class Solution {
         this.id = id;
     }
 
-    public int getExercise_id() {
-        return exercise_id;
-    }
-
-    public void setExercise_id(int exercise_id) {
-        this.exercise_id = exercise_id;
-    }
-
-    public int getUsers_id() {
-        return users_id;
-    }
-
-    public void setUsers_id(int users_id) {
-        this.users_id = users_id;
-    }
-
-    public LocalDateTime getCreated() {
+    public Timestamp getCreated() {
         return created;
     }
 
-    public void setCreated(LocalDateTime created) {
+    public void setCreated(Timestamp created) {
         this.created = created;
     }
 
-    public LocalDateTime getUpdated() {
+    public Timestamp getUpdated() {
         return updated;
     }
 
-    public void setUpdated(LocalDateTime updated) {
+    public void setUpdated(Timestamp updated) {
         this.updated = updated;
     }
 
-    public String getDesription() {
-        return desription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDesription(String desription) {
-        this.desription = desription;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getExerciseId() {
+        return exerciseId;
+    }
+
+    public void setExerciseId(int exerciseId) {
+        this.exerciseId = exerciseId;
+    }
+
+    public int getUsersId() {
+        return usersId;
+    }
+
+    public void setUsersId(int usersId) {
+        this.usersId = usersId;
     }
 
     @Override
     public String toString() {
         return "Solution{" +
                 "id=" + id +
-                ", exercise_id=" + exercise_id +
-                ", users_id=" + users_id +
-                ", desription='" + desription + '\'' +
                 ", created=" + created +
                 ", updated=" + updated +
+                ", description='" + description + '\'' +
+                ", exerciseId=" + exerciseId +
+                ", usersId=" + usersId +
                 '}';
     }
 }

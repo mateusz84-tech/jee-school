@@ -9,6 +9,10 @@ public class Group {
         this.name = name;
     }
 
+    public Group() {
+
+    }
+
     public int getId() {
         return id;
     }

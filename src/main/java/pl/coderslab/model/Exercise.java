@@ -10,6 +10,10 @@ public class Exercise {
         this.description = description;
     }
 
+    public Exercise() {
+
+    }
+
     public int getId() {
         return id;
     }

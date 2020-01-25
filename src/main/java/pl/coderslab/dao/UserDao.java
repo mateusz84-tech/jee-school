@@ -7,23 +7,20 @@ import java.util.Arrays;
 
 public class UserDao {
 
-//    private final String URL =
-//            "jdbc:mysql://localhost:3306/workspace?useSSL=false&characterEncoding=utf8";
-//    private final String USER = "root";
-//    private final String PASSWORD = "coderslab";
-
     private static final String CREATE_USER_QUERY =
-            "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
+            "INSERT INTO users(name, email, password) VALUES (?, ?, ?)";
     private static final String READ_USER_QUERY =
             "SELECT * FROM users where id = ?";
     private static final String UPDATE_USER_QUERY =
-            "UPDATE users SET username = ?, email = ?, password = ? where id = ?";
+            "UPDATE users SET name = ?, email = ?, password = ? where id = ?";
     private static final String DELETE_USER_QUERY =
             "DELETE FROM users WHERE id = ?";
     private static final String FIND_ALL_USERS_QUERY =
             "SELECT * FROM users";
+    private static final String FIND_ALL_USERS_BY_GROUP_ID_QUERY =
+            "SELECT * FROM users WHERE group_id = ?";
 
-    // metoda wczytująca dane do tabeli
+
     public User create(User user) {
         try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement =
@@ -43,7 +40,6 @@ public class UserDao {
         }
     }
 
-
     public User read(int userId) {
         try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement = conn.prepareStatement(READ_USER_QUERY);
@@ -52,7 +48,7 @@ public class UserDao {
             if (resultSet.next()) {
                 User user = new User();
                 user.setId(resultSet.getInt("id"));
-                user.setUserName(resultSet.getString("username"));
+                user.setUserName(resultSet.getString("name"));
                 user.setEmail(resultSet.getString("email"));
                 user.setPassword(resultSet.getString("password"));
                 return user;
@@ -86,8 +82,6 @@ public class UserDao {
         }
     }
 
-    // Funkcja pomocnicza
-
     private User[] addToArray(User u, User[] users) {
         User[] tmpUsers = Arrays.copyOf(users, users.length + 1);
         tmpUsers[users.length] = u;
@@ -102,10 +96,30 @@ public class UserDao {
             while (resultSet.next()) {
                 User user = new User();
                 user.setId(resultSet.getInt("id"));
-                user.setUserName(resultSet.getString("username"));
+                user.setUserName(resultSet.getString("name"));
                 user.setEmail(resultSet.getString("email"));
                 user.setPassword(resultSet.getString("password"));
-                users = addToArray(user, users); // Wywołanie funkcji pomocniczej
+                users = addToArray(user, users);
+            }
+            return users;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }}
+
+    public User[] findAllByGroupId(int groupId) {
+        try (Connection conn = DbUtil.getConnection()) {
+            User[] users = new User[0];
+            PreparedStatement statement = conn.prepareStatement(FIND_ALL_USERS_BY_GROUP_ID_QUERY);
+            statement.setInt(1, groupId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                User user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setUserName(resultSet.getString("name"));
+                user.setEmail(resultSet.getString("email"));
+                user.setPassword(resultSet.getString("password"));
+                users = addToArray(user, users);
             }
             return users;
         } catch (SQLException e) {

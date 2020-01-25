@@ -1,57 +1,66 @@
 package pl.coderslab.dao;
 
-import pl.coderslab.model.User;
-
+import pl.coderslab.model.Solution;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class SolutionDao {
 
-    private static final String CREATE_USER_QUERY =
-            "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
-    private static final String READ_USER_QUERY =
-            "SELECT * FROM users where id = ?";
-    private static final String UPDATE_USER_QUERY =
-            "UPDATE users SET username = ?, email = ?, password = ? where id = ?";
-    private static final String DELETE_USER_QUERY =
-            "DELETE FROM users WHERE id = ?";
-    private static final String FIND_ALL_USERS_QUERY =
-            "SELECT * FROM users";
+    private static final String CREATE_SOLUTION_QUERY =
+            "INSERT INTO solution(created, updated, description, exercise_id, users_id) VALUES (?, ?, ?, ?, ?)";
+    private static final String READ_SOLUTION_QUERY =
+            "SELECT * FROM solution where id = ?";
+    private static final String UPDATE_SOLUTION_QUERY =
+            "UPDATE solution SET created = ?, updated = ?, description = ?, exercise_id = ?, users_id = ? WHERE id = ?";
+    private static final String DELETE_SOLUTION_QUERY =
+            "DELETE FROM solution WHERE id = ?";
+    private static final String FIND_ALL_SOLUTIONS_QUERY =
+            "SELECT * FROM solution";
+    private static final String FIND_ALL_SOLUTIONS_BY_USER_ID_QUERY =
+            "SELECT * FROM solution WHERE users_id = ?";
+    private static final String FIND_ALL_SOLUTIONS_BY_EXERCISE_ID_QUERY =
+            "SELECT * FROM solution WHERE exercise_id = ?";
+    private static final String FIND_RECENT_SOLUTIONS_BY_ENTERING_QUANTITY_QUERY =
+            "SELECT * FROM solution ORDER BY created DESC LIMIT";
 
-    // metoda wczytująca dane do tabeli
-    public User create(User user) {
+    public Solution create(Solution solution) {
         try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement =
-                    conn.prepareStatement(CREATE_USER_QUERY, Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, user.getUserName());
-            statement.setString(2, user.getEmail());
-            statement.setString(3, user.getPassword());
+                    conn.prepareStatement(CREATE_SOLUTION_QUERY, Statement.RETURN_GENERATED_KEYS);
+            statement.setTimestamp(1, solution.getCreated());
+            statement.setTimestamp(2, solution.getUpdated());
+            statement.setString(3, solution.getDescription());
+            statement.setInt(4, solution.getExerciseId());
+            statement.setInt(5, solution.getUsersId());
             statement.executeUpdate();
             ResultSet resultSet = statement.getGeneratedKeys();
             if (resultSet.next()) {
-                user.setId(resultSet.getInt(1));
+                solution.setId(resultSet.getInt(1));
             }
-            return user;
+            return solution;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-
-    public User read(int userId) {
+    public Solution read(int solutionId) {
         try (Connection conn = DbUtil.getConnection()) {
-            PreparedStatement statement = conn.prepareStatement(READ_USER_QUERY);
-            statement.setInt(1, userId);
+            PreparedStatement statement = conn.prepareStatement(READ_SOLUTION_QUERY);
+            statement.setInt(1, solutionId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                User user = new User();
-                user.setId(resultSet.getInt("id"));
-                user.setUserName(resultSet.getString("username"));
-                user.setEmail(resultSet.getString("email"));
-                user.setPassword(resultSet.getString("password"));
-                return user;
+                Solution solution = new Solution();
+                solution.setId(resultSet.getInt("id"));
+                solution.setCreated(resultSet.getTimestamp("created"));
+                solution.setUpdated(resultSet.getTimestamp("updated"));
+                solution.setDescription(resultSet.getString("description"));
+                solution.setExerciseId(resultSet.getInt("exercise_id"));
+                solution.setUsersId(resultSet.getInt("users_id"));
+                return solution;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -59,53 +68,144 @@ public class SolutionDao {
         return null;
     }
 
-    public void update(User user) {
+    public void update(Solution solution) {
         try (Connection conn = DbUtil.getConnection()) {
-            PreparedStatement statement = conn.prepareStatement(UPDATE_USER_QUERY);
-            statement.setString(1, user.getUserName());
-            statement.setString(2, user.getEmail());
-            statement.setString(3, user.getPassword());
-            statement.setInt(4, user.getId());
+            PreparedStatement statement = conn.prepareStatement(UPDATE_SOLUTION_QUERY);
+            statement.setTimestamp(1, solution.getCreated());
+            statement.setTimestamp(2, solution.getUpdated());
+            statement.setString(3, solution.getDescription());
+            statement.setInt(4, solution.getExerciseId());
+            statement.setInt(5, solution.getUsersId());
+            statement.setInt(6, solution.getId());
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void delete(int userId) {
+    public void delete(int solutionId) {
         try (Connection conn = DbUtil.getConnection()) {
-            PreparedStatement statement = conn.prepareStatement(DELETE_USER_QUERY);
-            statement.setInt(1, userId);
+            PreparedStatement statement = conn.prepareStatement(DELETE_SOLUTION_QUERY);
+            statement.setInt(1, solutionId);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    // Funkcja pomocnicza
-
-    private User[] addToArray(User u, User[] users) {
-        User[] tmpUsers = Arrays.copyOf(users, users.length + 1);
-        tmpUsers[users.length] = u;
-        return tmpUsers;
+    private Solution[] addToArray(Solution s, Solution[] solutions) {
+        Solution[] tmpSolutions = Arrays.copyOf(solutions, solutions.length + 1);
+        tmpSolutions[solutions.length] = s;
+        return tmpSolutions;
     }
 
-    public User[] findAll() {
+    public Solution[] findAll() {
         try (Connection conn = DbUtil.getConnection()) {
-            User[] users = new User[0];
-            PreparedStatement statement = conn.prepareStatement(FIND_ALL_USERS_QUERY);
+            Solution[] solutions = new Solution[0];
+            PreparedStatement statement = conn.prepareStatement(FIND_ALL_SOLUTIONS_QUERY);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                User user = new User();
-                user.setId(resultSet.getInt("id"));
-                user.setUserName(resultSet.getString("username"));
-                user.setEmail(resultSet.getString("email"));
-                user.setPassword(resultSet.getString("password"));
-                users = addToArray(user, users); // Wywołanie funkcji pomocniczej
+                Solution solution = new Solution();
+                solution.setId(resultSet.getInt("id"));
+                solution.setCreated(resultSet.getTimestamp("created"));
+                solution.setUpdated(resultSet.getTimestamp("updated"));
+                solution.setDescription(resultSet.getString("description"));
+                solution.setExerciseId(resultSet.getInt("exercise_id"));
+                solution.setUsersId(resultSet.getInt("users_id"));
+                solutions = addToArray(solution, solutions);
             }
-            return users;
+            return solutions;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }}
+
+    public Solution[] findAllByUserId(int userId){
+
+        try(Connection conn = DbUtil.getConnection()){
+
+            Solution[] solutions = new Solution[0];
+
+            PreparedStatement statement = conn.prepareStatement(FIND_ALL_SOLUTIONS_BY_USER_ID_QUERY);
+            statement.setInt(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                Solution solution = new Solution();
+                solution.setId(resultSet.getInt("id"));
+                solution.setCreated(resultSet.getTimestamp("created"));
+                solution.setUpdated(resultSet.getTimestamp("updated"));
+                solution.setDescription(resultSet.getString("description"));
+                solution.setExerciseId(resultSet.getInt("exercise_id"));
+                solution.setUsersId(resultSet.getInt("users_id"));
+                solutions = addToArray(solution, solutions);
+            }
+
+            return solutions;
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Solution[] findAllByExerciseId(int exerciseId){
+
+        try(Connection conn = DbUtil.getConnection()){
+
+            Solution[] solutions = new Solution[0];
+
+            PreparedStatement statement = conn.prepareStatement(FIND_ALL_SOLUTIONS_BY_EXERCISE_ID_QUERY);
+            statement.setInt(1, exerciseId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                Solution solution = new Solution();
+                solution.setId(resultSet.getInt("id"));
+                solution.setCreated(resultSet.getTimestamp("created"));
+                solution.setUpdated(resultSet.getTimestamp("updated"));
+                solution.setDescription(resultSet.getString("description"));
+                solution.setExerciseId(resultSet.getInt("exercise_id"));
+                solution.setUsersId(resultSet.getInt("users_id"));
+                solutions = addToArray(solution, solutions);
+            }
+
+            return solutions;
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static List<Solution> findRecent(int numberOfSolutions){
+
+        try (Connection conn = DbUtil.getConnection()) {
+
+            List<Solution> solutions = new ArrayList<>();
+
+            PreparedStatement statement = conn.prepareStatement(FIND_RECENT_SOLUTIONS_BY_ENTERING_QUANTITY_QUERY+" "+numberOfSolutions);
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Solution solution = new Solution();
+                solution.setId(resultSet.getInt("id"));
+                solution.setCreated(resultSet.getTimestamp("created"));
+                solution.setUpdated(resultSet.getTimestamp("updated"));
+                solution.setDescription(resultSet.getString("description"));
+                solution.setExerciseId(resultSet.getInt("exercise_id"));
+                solution.setUsersId(resultSet.getInt("users_id"));
+                solutions.add(solution);
+            }
+
+            return solutions;
+
+        }
+
+        catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }
